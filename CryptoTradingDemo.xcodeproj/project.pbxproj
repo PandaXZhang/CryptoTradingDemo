@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F0B2EEC82DA9280500F8D323 /* LightweightCharts in Frameworks */ = {isa = PBXBuildFile; productRef = F0B2EEC72DA9280500F8D323 /* LightweightCharts */; };
+		F0B2EECB2DA9285000F8D323 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = F0B2EECA2DA9285000F8D323 /* Starscream */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0052AC2D2DA6C7D900D4BBDC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F0B2EEC82DA9280500F8D323 /* LightweightCharts in Frameworks */,
+				F0B2EECB2DA9285000F8D323 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +119,8 @@
 			);
 			name = CryptoTradingDemo;
 			packageProductDependencies = (
+				F0B2EEC72DA9280500F8D323 /* LightweightCharts */,
+				F0B2EECA2DA9285000F8D323 /* Starscream */,
 			);
 			productName = CryptoTradingDemo;
 			productReference = 0052AC1C2DA6C7D800D4BBDC /* CryptoTradingDemo.app */;
@@ -195,6 +204,10 @@
 			);
 			mainGroup = 0052AC132DA6C7D700D4BBDC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F0B2EEC62DA9280500F8D323 /* XCRemoteSwiftPackageReference "LightweightChartsIOS" */,
+				F0B2EEC92DA9285000F8D323 /* XCRemoteSwiftPackageReference "Starscream" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0052AC1D2DA6C7D800D4BBDC /* Products */;
 			projectDirPath = "";
@@ -558,6 +571,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F0B2EEC62DA9280500F8D323 /* XCRemoteSwiftPackageReference "LightweightChartsIOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tradingview/LightweightChartsIOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
+		F0B2EEC92DA9285000F8D323 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.8;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F0B2EEC72DA9280500F8D323 /* LightweightCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F0B2EEC62DA9280500F8D323 /* XCRemoteSwiftPackageReference "LightweightChartsIOS" */;
+			productName = LightweightCharts;
+		};
+		F0B2EECA2DA9285000F8D323 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F0B2EEC92DA9285000F8D323 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0052AC142DA6C7D800D4BBDC /* Project object */;
 }

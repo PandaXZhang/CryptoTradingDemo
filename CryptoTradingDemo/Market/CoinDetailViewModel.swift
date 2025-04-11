@@ -6,14 +6,14 @@
 //
 
 import Starscream
+import Foundation
 
 class ETHRealtimeQuote {
     private var socket: WebSocket?
 
     init() {
-        // 这里只是示例 URL，TradingView 无公开免费 WebSocket API，需自行找合适数据源
         let url = URL(string: "ws://your-websocket-url")!
-        socket = WebSocket(url: url)
+        socket = WebSocket(request: .init(url: url))
         socket?.delegate = self
     }
 
@@ -27,7 +27,7 @@ class ETHRealtimeQuote {
 }
 
 extension ETHRealtimeQuote: WebSocketDelegate {
-    func didReceive(event: WebSocketEvent, client: WebSocket) {
+    func didReceive(event: Starscream.WebSocketEvent, client: any Starscream.WebSocketClient) {
         switch event {
         case .connected(let headers):
             print("WebSocket 已连接，Headers: \(headers)")
@@ -35,13 +35,12 @@ extension ETHRealtimeQuote: WebSocketDelegate {
             let subscribeMessage = "{\"action\": \"subscribe\", \"symbol\": \"ETHUSD\"}"
             client.write(string: subscribeMessage)
         case .disconnected(let reason, let code):
-            print("WebSocket 已断开连接，原因: \(reason)，代码: \(code)")
+            print("WebSocket did disconnected, reason: \(reason), code: \(code)")
         case .text(let string):
-            // 处理接收到的实时行情数据
-            print("接收到数据: \(string)")
-            // 这里可添加 JSON 解析逻辑，提取所需信息
+            // handle realtime data
+            print("did receive string: \(string)")
         case .binary(let data):
-            print("接收到二进制数据，长度: \(data.count)")
+            print("did receive binary data, length: \(data.count)")
         case .ping(_):
             break
         case .pong(_):
@@ -54,16 +53,14 @@ extension ETHRealtimeQuote: WebSocketDelegate {
             break
         case .error(let error):
             if let error = error {
-                print("WebSocket 发生错误: \(error.localizedDescription)")
+                print("WebSocket error: \(error.localizedDescription)")
             } else {
-                print("WebSocket 发生未知错误")
+                print("WebSocket unknown error")
             }
+        case .peerClosed:
+            break
         }
     }
 }
-
-// 使用示例
-let ethQuote = ETHRealtimeQuote()
-ethQuote.connect()
     
 

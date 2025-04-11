@@ -11,26 +11,23 @@ struct ContentView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-        VStack {
-            TabView(selection: $selectedTab) {
-                Text("Market")
-                    .tabItem {
-                        Label("Market", systemImage: "info.circle")
-                    }
-                    .tag(0)
-                Text("Watchlist")
-                    .tabItem {
-                        Label("Watchlist", systemImage: "star")
-                    }
-                    .tag(1)
-                Text("Orders")
-                    .tabItem {
-                        Label("Orders", systemImage: "cart")
-                    }
-                    .tag(2)
-            }
+        TabView(selection: $selectedTab) {
+            CoinList()
+                .tabItem {
+                    Label("Market", systemImage: "info.circle")
+                }
+                .tag(0)
+            Text("Watchlist")
+                .tabItem {
+                    Label("Watchlist", systemImage: "star")
+                }
+                .tag(1)
+            Text("Orders")
+                .tabItem {
+                    Label("Orders", systemImage: "cart")
+                }
+                .tag(2)
         }
-        .padding()
     }
 }
 

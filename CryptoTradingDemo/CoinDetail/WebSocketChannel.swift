@@ -20,6 +20,7 @@ class WebSocketChannel {
     private var subscribeMessage:String {
         return "{\"action\": \"subscribe\", \"subscribe\": \"kbar\", \"kbar\": \"1min\", \"pair\": \"\(self.tokenPair.rawValue)\"}"
     }
+    public var dataSubscriber:((Float)->(Void))? = nil
 
     init(tokenPair:TokenPair) {
         self.tokenPair = tokenPair
@@ -90,7 +91,7 @@ extension WebSocketChannel: WebSocketDelegate {
             return
         }
         
-        //TODO: parse real time token data
+        refreshPriceData(jsonDict)
     }
     
     func responseHeartBeat(_ pongDict:[String:Any]) {
@@ -113,6 +114,10 @@ extension WebSocketChannel: WebSocketDelegate {
         } catch {
             print("[JSON]: JSONSerialization error: \(error)")
         }
+    }
+    
+    func refreshPriceData(_ dict:[String:Any]) {
+        //{"SERVER":"V2","kbar":{"a":0.0,"c":84699.73,"t":"2025-04-12T23:13:00.000","v":0.0,"h":84699.73,"slot":"1min","l":84699.73,"n":0,"o":84699.73},"type":"kbar","pair":"btc_usdt","TS":"2025-04-12T23:13:02.853"}
     }
 }
 

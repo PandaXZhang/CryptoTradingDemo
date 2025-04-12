@@ -12,7 +12,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            CoinList()
+            CoinListView()
                 .tabItem {
                     Label("Market", systemImage: "info.circle")
                 }

@@ -19,7 +19,7 @@ struct ContentView: View {
                     Label("Market", systemImage: "info.circle")
                 }
                 .tag(0)
-            WatchList()
+            WatchListView()
                 .environmentObject(watchlistViewModel)
                 .tabItem {
                     Label("Watchlist", systemImage: "star")

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct WatchList : View {
+struct WatchListView : View {
     @EnvironmentObject var watchlistViewModel: WatchListViewModel
     var body: some View {
         NavigationView {

@@ -11,6 +11,7 @@ import LightweightCharts
 class CoinDetailLineChartViewController: UIViewController {
 
     private var chart: LightweightCharts!
+    private var data:[AreaData] = []
     private var series: AreaSeries!
     private let tooltipView = TooltipView(accentColor: UIColor(red: 1, green: 82/255.0, blue: 82/255.0, alpha: 1))
     private let tokenPair: TokenPair?
@@ -96,14 +97,26 @@ class CoinDetailLineChartViewController: UIViewController {
     }
     
     private func setupData() {
+        self.initData()
+        
         if self.tokenPair != nil {
-            self.socketChannel?.connect()
-            self.socketChannel?.dataSubscriber = { newPrice in
-                print("new price = \(newPrice)")
-            }
+            self.buildChannel()
         } else {
             self.setupMockData()
         }
+    }
+    
+    private func initData() {
+        let options = AreaSeriesOptions(
+            topColor: "rgba(255, 82, 82, 0.56)",
+            bottomColor: "rgba(255, 82, 82, 0.04)",
+            lineColor: "rgba(255, 82, 82, 1)",
+            lineWidth: .two
+        )
+        let series = chart.addAreaSeries(options: options)
+        self.data = []
+        series.setData(data: self.data)
+        self.series = series
     }
     
     private func setupSubscription() {
@@ -113,22 +126,44 @@ class CoinDetailLineChartViewController: UIViewController {
     
 }
 
-//MARK: - real data
+//MARK: - websocket data
 extension CoinDetailLineChartViewController {
+    private func buildChannel() {
+        self.socketChannel?.connect()
+        self.socketChannel?.tickSubscriber = { (newPrice:Double) in
+            self.refreshWithTickData(newPrice: newPrice)
+        }
+        self.socketChannel?.historyHandler = { historyRecords in
+            var records:[(String, Double)] = []
+            historyRecords.forEach { record in
+                let timestamp = record.timestamp
+                let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                let dateString = dateFormatter.string(from: date)
+                records.append((dateString, record.close))
+            }
+            self.appendHistoryData(records)
+        }
+    }
     
+    private func appendHistoryData(_ records:[(String, Double)]) {
+        records.forEach { record in
+            let newElement = AreaData(time: .string(record.0), value: record.1)
+            self.data.append(newElement)
+        }
+        self.series.setData(data: self.data)
+    }
+    
+    private func refreshWithTickData(newPrice:Double) {
+        //TODO: refresh tick data
+    }
 }
 
 //MARK: - mock data
 extension CoinDetailLineChartViewController {
     private func setupMockData() {
-        let options = AreaSeriesOptions(
-            topColor: "rgba(255, 82, 82, 0.56)",
-            bottomColor: "rgba(255, 82, 82, 0.04)",
-            lineColor: "rgba(255, 82, 82, 1)",
-            lineWidth: .two
-        )
-        let series = chart.addAreaSeries(options: options)
-        let data = [
+        self.data = [
             AreaData(time: .string("2016-07-18"), value: 98.66),
             AreaData(time: .string("2016-07-25"), value: 104.21),
             AreaData(time: .string("2016-08-01"), value: 107.48),
@@ -280,8 +315,6 @@ extension CoinDetailLineChartViewController {
             AreaData(time: .string("2019-05-20"), value: 178.97),
             AreaData(time: .string("2019-05-27"), value: 179.03)
         ]
-        series.setData(data: data)
-        self.series = series
     }
 }
 

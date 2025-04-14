@@ -13,6 +13,24 @@ enum TokenPair:String {
     case BTC_USDT = "btc_usdt"
 }
 
+enum SocketDataType {
+    case ping
+    case history
+    case tick
+    case kbar
+}
+
+struct WebSocketRecord {
+    let timestamp:Int64
+    let open:Double
+    let high:Double
+    let low:Double
+    let close:Double
+    let volume:Double
+    let turnover:Double
+    let count:Int64
+}
+
 class WebSocketChannel {
     private let tokenPair:TokenPair
     private var socket: WebSocket?
@@ -20,7 +38,18 @@ class WebSocketChannel {
     private var subscribeMessage:String {
         return "{\"action\": \"subscribe\", \"subscribe\": \"kbar\", \"kbar\": \"1min\", \"pair\": \"\(self.tokenPair.rawValue)\"}"
     }
-    public var dataSubscriber:((Float)->(Void))? = nil
+    private var tickMessage:String {
+        return "{\"action\": \"subscribe\", \"subscribe\": \"tick\", \"pair\": \"\(self.tokenPair.rawValue)\"}"
+    }
+    private var historyRequestMessage:String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withTimeZone]
+        let currentDate = Date()
+        let isoDateString = formatter.string(from: currentDate)
+        return "{\"action\": \"request\", \"request\": \"kbar\", \"kbar\": \"day\", \"pair\": \"\(self.tokenPair.rawValue)\", \"start\": \"2024-07-03T17:32:00\", \"end\": \"\(isoDateString)\", \"size\": \"300\"}"
+    }
+    public var tickSubscriber:((Double)->(Void))? = nil
+    public var historyHandler:(([WebSocketRecord])->(Void))? = nil
 
     init(tokenPair:TokenPair) {
         self.tokenPair = tokenPair
@@ -43,13 +72,16 @@ extension WebSocketChannel: WebSocketDelegate {
         switch event {
         case .connected(let headers):
             print("[WebSocket] connected success, headers: \(headers)")
-            // subscribe token pair data
-            client.write(string: subscribeMessage)
+            // request history data
+            client.write(string: historyRequestMessage)
+            // subscribe token pair tick
+            client.write(string: tickMessage)
+//            client.write(string: subscribeMessage)
         case .disconnected(let reason, let code):
-            print("[WebSocket] ❗did disconnected, reason: \(reason), code: \(code)")
+            print("[WebSocket] ❗❗❗did disconnected, reason: \(reason), code: \(code)")
         case .text(let string):
             // handle realtime data
-            print("[WebSocket] did receive string: \(string)")
+            print("[WebSocket] 🟢🟢🟢did receive string: \(string)")
             if let jsonDict = parseStringToDict(jsonString: string) {
                 handleJsonDict(jsonDict)
             }
@@ -81,17 +113,29 @@ extension WebSocketChannel: WebSocketDelegate {
     }
     
     func handleJsonDict(_ jsonDict:[String:Any]) {
-        if jsonDict["action"] as? String == "ping" {
+        let dataType = resolveSocketType(jsonDict)
+        switch dataType {
+        case .ping:
             let pongDict:[String:Any] = [
                 "action":"pong",
                 "pong":jsonDict["ping"] as? String ?? ""
             ]
             responseHeartBeat(pongDict)
             requestHeartBeat(jsonDict)
-            return
+        case .history:
+            if let records:[[NSNumber]] = jsonDict["records"] as? [[NSNumber]] {
+                var elements:[WebSocketRecord] = []
+                records.forEach { ele in
+                    let record = WebSocketRecord.init(timestamp: Int64(ele[0]), open: Double(ele[1]), high: Double(ele[2]), low: Double(ele[3]), close: Double(ele[4]), volume: Double(ele[5]), turnover: Double(ele[6]), count: Int64(ele[7]))
+                    elements.append(record)
+                }
+                appendHistoryData(elements)
+            }
+        case .kbar:
+            break
+        case .tick:
+            refreshPriceData(jsonDict)
         }
-        
-        refreshPriceData(jsonDict)
     }
     
     func responseHeartBeat(_ pongDict:[String:Any]) {
@@ -116,8 +160,14 @@ extension WebSocketChannel: WebSocketDelegate {
         }
     }
     
+    func appendHistoryData(_ records:[WebSocketRecord]) {
+        historyHandler?(records)
+    }
+    
     func refreshPriceData(_ dict:[String:Any]) {
-        //{"SERVER":"V2","kbar":{"a":0.0,"c":84699.73,"t":"2025-04-12T23:13:00.000","v":0.0,"h":84699.73,"slot":"1min","l":84699.73,"n":0,"o":84699.73},"type":"kbar","pair":"btc_usdt","TS":"2025-04-12T23:13:02.853"}
+        //{"SERVER":"V2","tick":{"to_cny":7.29,"high":85543.7,"vol":2966.4963,"low":83046.11,"change":-0.42,"usd":84667.75,"to_usd":1.0,"dir":"buy","turnover":2.5046901191E8,"latest":84667.75,"cny":617363.36},"type":"tick","pair":"btc_usdt","TS":"2025-04-14T12:27:07.461"}
+            
+//        dataSubscriber?(endPrice, String(timeStr.prefix(10)))
     }
 }
 
@@ -134,6 +184,18 @@ extension WebSocketChannel {
         } else {
             print("[JSON] can not transfer data from string")
             return nil
+        }
+    }
+    
+    func resolveSocketType(_ jsonDict:[String:Any]) -> SocketDataType {
+        if jsonDict["action"] as? String == "ping" {
+            return .ping
+        } else if let _ = jsonDict["tick"] as? [String:Any] {
+            return .tick
+        } else if let _ = jsonDict["records"] as? [[NSNumber]] {
+            return .history
+        } else {
+            return .kbar
         }
     }
 }

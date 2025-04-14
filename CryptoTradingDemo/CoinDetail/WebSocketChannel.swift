@@ -126,7 +126,7 @@ extension WebSocketChannel: WebSocketDelegate {
             if let records:[[NSNumber]] = jsonDict["records"] as? [[NSNumber]] {
                 var elements:[WebSocketRecord] = []
                 records.forEach { ele in
-                    let record = WebSocketRecord.init(timestamp: Int64(ele[0]), open: Double(ele[1]), high: Double(ele[2]), low: Double(ele[3]), close: Double(ele[4]), volume: Double(ele[5]), turnover: Double(ele[6]), count: Int64(ele[7]))
+                    let record = WebSocketRecord.init(timestamp: Int64(truncating: ele[0]), open: Double(truncating: ele[1]), high: Double(truncating: ele[2]), low: Double(truncating: ele[3]), close: Double(truncating: ele[4]), volume: Double(truncating: ele[5]), turnover: Double(truncating: ele[6]), count: Int64(truncating: ele[7]))
                     elements.append(record)
                 }
                 appendHistoryData(elements)
@@ -134,7 +134,7 @@ extension WebSocketChannel: WebSocketDelegate {
         case .kbar:
             break
         case .tick:
-            refreshPriceData(jsonDict)
+            refreshPriceTickData(jsonDict)
         }
     }
     
@@ -164,9 +164,15 @@ extension WebSocketChannel: WebSocketDelegate {
         historyHandler?(records)
     }
     
-    func refreshPriceData(_ dict:[String:Any]) {
+    func refreshPriceTickData(_ dict:[String:Any]) {
         //{"SERVER":"V2","tick":{"to_cny":7.29,"high":85543.7,"vol":2966.4963,"low":83046.11,"change":-0.42,"usd":84667.75,"to_usd":1.0,"dir":"buy","turnover":2.5046901191E8,"latest":84667.75,"cny":617363.36},"type":"tick","pair":"btc_usdt","TS":"2025-04-14T12:27:07.461"}
-            
+        guard let tickDict = dict["tick"] as? [String:Any] else {
+            return
+        }
+        guard let usd = tickDict["usd"] as? Double else {
+            return
+        }
+        tickSubscriber?(usd)
 //        dataSubscriber?(endPrice, String(timeStr.prefix(10)))
     }
 }

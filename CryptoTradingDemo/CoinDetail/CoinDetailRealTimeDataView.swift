@@ -10,11 +10,14 @@ import UIKit
 class CoinDetailRealTimeDataView: UIView {
     private let titleLabel = UILabel()
     private let priceLabel = UILabel()
-    private let dateLabel = UILabel()
     
+    private let title:String
     private let accentColor: UIColor
     
-    init(accentColor: UIColor) {
+    init(title:String, accentColor: UIColor) {
+        self.title = title
+        self.titleLabel.text = title
+        self.priceLabel.text = "loading..."
         self.accentColor = accentColor
         super.init(frame: .zero)
         
@@ -28,49 +31,38 @@ class CoinDetailRealTimeDataView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(title: String, price: Double, date: String) {
-        titleLabel.text = title
-        priceLabel.text = "\((price * 100).rounded() / 100)"
-        dateLabel.text = date
-    }
-    
     private func setupSubviews() {
         self.layer.borderColor = accentColor.cgColor
         
         titleLabel.textColor = accentColor
-        priceLabel.textColor = .darkText
-        dateLabel.textColor = .darkText
+        priceLabel.textColor = .systemGreen
         
-        priceLabel.font = .systemFont(ofSize: 24)
+        priceLabel.font = .systemFont(ofSize: 12)
         
         titleLabel.textAlignment = .natural
         priceLabel.textAlignment = .natural
-        dateLabel.textAlignment = .natural
         
         addSubview(titleLabel)
         addSubview(priceLabel)
-        addSubview(dateLabel)
         
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         priceLabel.translatesAutoresizingMaskIntoConstraints = false
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let padding: CGFloat = 8
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: padding),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding),
             
-            priceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            priceLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: padding),
             priceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            priceLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: padding),
-            
-            dateLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
-            dateLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-            dateLabel.topAnchor.constraint(equalTo: priceLabel.bottomAnchor, constant: padding),
-            dateLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -padding),
+            priceLabel.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
         ])
 
+    }
+    
+    func refreshPrice(_ newPrice:Double) {
+        priceLabel.text = String(newPrice)
     }
     
 }

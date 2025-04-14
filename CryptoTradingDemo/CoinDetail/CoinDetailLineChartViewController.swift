@@ -14,6 +14,7 @@ class CoinDetailLineChartViewController: UIViewController {
     private var data:[AreaData] = []
     private var series: AreaSeries!
     private let tooltipView = TooltipView(accentColor: UIColor(red: 1, green: 82/255.0, blue: 82/255.0, alpha: 1))
+    private var realTimeView:CoinDetailRealTimeDataView?
     private let tokenPair: TokenPair?
     private var socketChannel: WebSocketChannel?
     
@@ -51,6 +52,8 @@ class CoinDetailLineChartViewController: UIViewController {
     }
     
     private func setupUI() {
+        self.realTimeView = CoinDetailRealTimeDataView(title: "\(self.tokenPair?.rawValue ?? "") real-time", accentColor: UIColor.black)
+        
         let options = ChartOptions(
             layout: LayoutOptions(background: .solid(color: "#ffffff"), textColor: "#333"),
             rightPriceScale: VisiblePriceScaleOptions(
@@ -66,21 +69,12 @@ class CoinDetailLineChartViewController: UIViewController {
         let chart = LightweightCharts(options: options)
         view.addSubview(chart)
         chart.translatesAutoresizingMaskIntoConstraints = false
-        if #available(iOS 11.0, *) {
-            NSLayoutConstraint.activate([
-                chart.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-                chart.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-                chart.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                chart.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-            ])
-        } else {
-            NSLayoutConstraint.activate([
-                chart.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                chart.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                chart.topAnchor.constraint(equalTo: view.topAnchor),
-                chart.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
-        }
+        NSLayoutConstraint.activate([
+            chart.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            chart.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            chart.topAnchor.constraint(equalTo: view.topAnchor),
+            chart.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         self.chart = chart
         
         view.addSubview(tooltipView)
@@ -90,10 +84,16 @@ class CoinDetailLineChartViewController: UIViewController {
         bottomConstraint = tooltipView.bottomAnchor.constraint(equalTo: chart.topAnchor)
         leadingConstraint.isActive = true
         bottomConstraint.isActive = true
-        
         tooltipView.isHidden = true
-        
         view.bringSubviewToFront(tooltipView)
+        
+        view.addSubview(realTimeView!)
+        realTimeView!.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            realTimeView!.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            realTimeView!.topAnchor.constraint(equalTo: view.topAnchor, constant: 8),
+            realTimeView!.widthAnchor.constraint(equalToConstant: 250),
+        ])
     }
     
     private func setupData() {
@@ -156,7 +156,7 @@ extension CoinDetailLineChartViewController {
     }
     
     private func refreshWithTickData(newPrice:Double) {
-        //TODO: refresh tick data
+        self.realTimeView?.refreshPrice(newPrice)
     }
 }
 

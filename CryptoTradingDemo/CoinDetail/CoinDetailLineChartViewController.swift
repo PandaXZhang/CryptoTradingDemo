@@ -52,7 +52,7 @@ class CoinDetailLineChartViewController: UIViewController {
     }
     
     private func setupUI() {
-        self.realTimeView = CoinDetailRealTimeDataView(title: "\(self.tokenPair?.rawValue ?? "") real-time", accentColor: UIColor.black)
+        self.realTimeView = CoinDetailRealTimeDataView(title: "real-time price", accentColor: UIColor.black)
         
         let options = ChartOptions(
             layout: LayoutOptions(background: .solid(color: "#ffffff"), textColor: "#333"),

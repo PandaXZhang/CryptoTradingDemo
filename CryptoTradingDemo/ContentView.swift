@@ -9,15 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 0
+    @ObservedObject var watchlistViewModel = WatchListViewModel()
     
     var body: some View {
         TabView(selection: $selectedTab) {
             CoinListView()
+                .environmentObject(watchlistViewModel)
                 .tabItem {
                     Label("Market", systemImage: "info.circle")
                 }
                 .tag(0)
-            Text("Watchlist")
+            WatchList()
+                .environmentObject(watchlistViewModel)
                 .tabItem {
                     Label("Watchlist", systemImage: "star")
                 }

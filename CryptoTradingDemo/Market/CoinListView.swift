@@ -9,6 +9,9 @@ import SwiftUI
 
 struct CoinListView : View {
     @EnvironmentObject var watchlistViewModel: WatchListViewModel
+    @State var showOrderPanel = false
+    @ObservedObject private var viewModel = OrderViewModel()
+
     var body: some View {
         NavigationView {
             List {
@@ -21,6 +24,13 @@ struct CoinListView : View {
                                     watchlistViewModel.updateBtcWatchState(!watchlistViewModel.btcWatched)
                                 }) {
                                     Image(systemName: watchlistViewModel.btcWatched ? "star.fill" : "star")
+                                }
+                            }
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showOrderPanel = !showOrderPanel
+                                }) {
+                                    Image(systemName: "plus.circle")
                                 }
                             }
                         }
@@ -42,6 +52,13 @@ struct CoinListView : View {
                                     Image(systemName: watchlistViewModel.ethWatched ? "star.fill" : "star")
                                 }
                             }
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showOrderPanel = !showOrderPanel
+                                }) {
+                                    Image(systemName: "plus.circle")
+                                }
+                            }
                         }
                 } label: {
                     HStack {
@@ -61,6 +78,13 @@ struct CoinListView : View {
                                     Image(systemName: watchlistViewModel.btcWatched ? "star.fill" : "star")
                                 }
                             }
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showOrderPanel = !showOrderPanel
+                                }) {
+                                    Image(systemName: "plus.circle")
+                                }
+                            }
                         }
                 } label: {
                     HStack {
@@ -71,6 +95,9 @@ struct CoinListView : View {
         
             }
             .navigationTitle("Coin List")
+        }
+        .sheet(isPresented: $showOrderPanel) {
+            OrderEntryView(viewModel: viewModel)
         }
     }
 }

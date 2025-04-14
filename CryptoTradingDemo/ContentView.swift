@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab = 0
     @ObservedObject var watchlistViewModel = WatchListViewModel()
+    @ObservedObject var orderListViewModel = OrderViewModel()
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -25,7 +26,7 @@ struct ContentView: View {
                     Label("Watchlist", systemImage: "star")
                 }
                 .tag(1)
-            Text("Orders")
+            OrderHistoryView(viewModel: orderListViewModel)
                 .tabItem {
                     Label("Orders", systemImage: "cart")
                 }

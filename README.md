@@ -13,7 +13,15 @@ BTC/USDT ETH/USDT
 ## watchlist
 
 ## todo:
-order entry(90%) 
-order history list(50%)
-unit test(0%)
+order entry(100%) 
+order history list(100%)
+unit test(100%)
+
+## updates
+1. remove hard code
+2. use swift combine to publish and subscribe websocket data
+3. error handler
+4. use realm for storing orders 
+5. unit tests for websocket service
+
 

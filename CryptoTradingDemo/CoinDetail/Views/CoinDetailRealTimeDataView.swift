@@ -37,7 +37,7 @@ class CoinDetailRealTimeDataView: UIView {
         titleLabel.textColor = accentColor
         priceLabel.textColor = .systemGreen
         
-        priceLabel.font = .systemFont(ofSize: 12)
+        priceLabel.font = .systemFont(ofSize: 14)
         
         titleLabel.textAlignment = .natural
         priceLabel.textAlignment = .natural
@@ -62,7 +62,9 @@ class CoinDetailRealTimeDataView: UIView {
     }
     
     func refreshPrice(_ newPrice:Double) {
-        priceLabel.text = String(newPrice)
+        if newPrice > 0 {
+            priceLabel.text = String(newPrice)
+        }
     }
     
 }

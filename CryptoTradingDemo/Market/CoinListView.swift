@@ -16,14 +16,16 @@ struct CoinListView : View {
         NavigationView {
             List {
                 NavigationLink {
+                    let tokenPair = TokenPair.BTC_USDT
+                    let watchState = watchlistViewModel.watchListStates[tokenPair.rawValue] ?? false
                     CoinDetailViewControllerWrapper(token: .BTC_USDT, style: .line)
                         .navigationTitle(TokenPair.BTC_USDT.rawValue)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button(action: {
-                                    watchlistViewModel.updateBtcWatchState(!watchlistViewModel.btcWatched)
+                                    watchlistViewModel.updateWatchState(tokenPair: tokenPair, state: !watchState)
                                 }) {
-                                    Image(systemName: watchlistViewModel.btcWatched ? "star.fill" : "star")
+                                    Image(systemName: watchState ? "star.fill" : "star")
                                 }
                             }
                             ToolbarItem(placement: .navigationBarTrailing) {
@@ -42,14 +44,16 @@ struct CoinListView : View {
                 }
                 
                 NavigationLink {
+                    let tokenPair = TokenPair.ETH_USDT
+                    let watchState = watchlistViewModel.watchListStates[tokenPair.rawValue] ?? false
                     CoinDetailViewControllerWrapper(token: .ETH_USDT, style: .line)
                         .navigationTitle(TokenPair.ETH_USDT.rawValue)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button(action: {
-                                    watchlistViewModel.updateEthWatchState(!watchlistViewModel.ethWatched)
+                                    watchlistViewModel.updateWatchState(tokenPair: tokenPair, state: !watchState)
                                 }) {
-                                    Image(systemName: watchlistViewModel.ethWatched ? "star.fill" : "star")
+                                    Image(systemName: watchState ? "star.fill" : "star")
                                 }
                             }
                             ToolbarItem(placement: .navigationBarTrailing) {
@@ -68,14 +72,16 @@ struct CoinListView : View {
                 }
                 
                 NavigationLink {
+                    let tokenPair = TokenPair.BTC_USDT
+                    let watchState = watchlistViewModel.watchListStates[tokenPair.rawValue] ?? false
                     CoinDetailViewControllerWrapper(token: .BTC_USDT, style: .candlestick)
                         .navigationTitle(TokenPair.BTC_USDT.rawValue)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button(action: {
-                                    watchlistViewModel.updateBtcWatchState(!watchlistViewModel.btcWatched)
+                                    watchlistViewModel.updateWatchState(tokenPair: tokenPair, state: !watchState)
                                 }) {
-                                    Image(systemName: watchlistViewModel.btcWatched ? "star.fill" : "star")
+                                    Image(systemName: watchState ? "star.fill" : "star")
                                 }
                             }
                             ToolbarItem(placement: .navigationBarTrailing) {

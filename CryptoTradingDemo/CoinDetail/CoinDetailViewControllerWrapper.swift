@@ -14,7 +14,7 @@ enum CoinDetailStyle {
 }
 
 struct CoinDetailViewControllerWrapper: UIViewControllerRepresentable {
-    let token:TokenPair?
+    let token:TokenPair
     let style:CoinDetailStyle
     
     func makeUIViewController(context: Context) -> UIViewController {

@@ -8,28 +8,41 @@
 import SwiftUI
 import Combine
 
-class WatchListViewModel: ObservableObject {
-    @Published var btcWatched = false
-    @Published var ethWatched = false
-    private let btcWatchlistKey = "BTC_WATCHLIST_KEY"
-    private let ethWatchlistKey = "ETH_WATCHLIST_KEY"
+final class WatchListViewModel: ObservableObject {
+    // MARK: - Properties
+    @Published private(set) var watchListStates: [String: Bool] = [:]
+    private let watchListKey = "WATCHLIST_KEY"
+    private let userDefaults: UserDefaults
     
-    init() {
-        refreshState()
+    // MARK: - Initialization
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        loadWatchList()
     }
     
-    func refreshState() {
-        btcWatched = UserDefaults.standard.bool(forKey: btcWatchlistKey)
-        ethWatched = UserDefaults.standard.bool(forKey: ethWatchlistKey)
+    // MARK: - Public Methods
+    func isWatched(tokenPair: TokenPair) -> Bool {
+        watchListStates[tokenPair.rawValue] ?? false
     }
     
-    func updateBtcWatchState(_ watched:Bool) {
-        btcWatched = watched
-        UserDefaults.standard.set(watched, forKey: btcWatchlistKey)
+    func toggleWatchState(for tokenPair: TokenPair) {
+        let newState = !isWatched(tokenPair: tokenPair)
+        updateWatchState(tokenPair: tokenPair, state: newState)
     }
     
-    func updateEthWatchState(_ watched:Bool) {
-        ethWatched = watched
-        UserDefaults.standard.set(watched, forKey: ethWatchlistKey)
+    func updateWatchState(tokenPair: TokenPair, state: Bool) {
+        watchListStates[tokenPair.rawValue] = state
+        saveWatchList()
+    }
+    
+    // MARK: - Private Methods
+    private func loadWatchList() {
+        if let dictionary = userDefaults.dictionary(forKey: watchListKey) as? [String: Bool] {
+            watchListStates = dictionary
+        }
+    }
+    
+    private func saveWatchList() {
+        userDefaults.set(watchListStates, forKey: watchListKey)
     }
 }

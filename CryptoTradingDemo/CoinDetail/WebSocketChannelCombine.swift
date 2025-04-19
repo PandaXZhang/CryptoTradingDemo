@@ -87,7 +87,8 @@ class WebSocketService {
     }
     
     func disconnect() {
-        socket?.disconnect()
+        socket?.forceDisconnect()
+        print("[WebSocket🔴] disconnected")
         cancellables.forEach { $0.cancel() }
     }
     
@@ -222,6 +223,7 @@ extension WebSocketService: WebSocketDelegate {
             sendInitialRequests()
         case .disconnected(let reason, let code):
             connectionStatus.send(false)
+            print("[WebSocket🔴] disconnected")
             handleError(.custom("Disconnected: \(reason) (code: \(code))"))
         case .error(let error):
             handleError(.connectionFailed(error))

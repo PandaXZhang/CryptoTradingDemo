@@ -65,8 +65,8 @@ class WebSocketService {
     
     // MARK: - private properties
     private let tokenPair: TokenPair
-    private var socket: WebSocket?
-    private var cancellables = Set<AnyCancellable>()
+    var socket: WebSocket?
+    var cancellables = Set<AnyCancellable>()
     private let wsUrl = "wss://www.lbkex.net/ws/V2/"
     private let jsonDecoder = JSONDecoder()
     
@@ -98,7 +98,7 @@ class WebSocketService {
         socket?.delegate = self
     }
     
-    private func handleReceivedText(_ text: String) {
+    func handleReceivedText(_ text: String) {
         do {
             guard let jsonDict = try parseStringToDict(jsonString: text) else {
                 throw WebSocketError.dataParsingFailed
@@ -125,7 +125,7 @@ class WebSocketService {
         }
     }
     
-    private func handleTickData(_ dict: [String: Any]) throws {
+    func handleTickData(_ dict: [String: Any]) throws {
         guard let tickDict = dict["tick"] as? [String: Any],
               let usd = tickDict["usd"] as? Double else {
             throw WebSocketError.dataParsingFailed
@@ -133,7 +133,7 @@ class WebSocketService {
         tickPublisher.send(.success(usd))
     }
     
-    private func handleHistoryData(_ dict: [String: Any]) throws {
+    func handleHistoryData(_ dict: [String: Any]) throws {
         guard let records = dict["records"] as? [[NSNumber]] else {
             throw WebSocketError.dataParsingFailed
         }
@@ -157,7 +157,7 @@ class WebSocketService {
         historyPublisher.send(.success(elements))
     }
     
-    private func handlePing(_ dict: [String: Any]) throws {
+    func handlePing(_ dict: [String: Any]) throws {
         guard let pingId = dict["ping"] as? String else {
             throw WebSocketError.invalidResponse
         }
@@ -172,7 +172,7 @@ class WebSocketService {
         }
     }
     
-    private func setupHeartbeat() {
+    func setupHeartbeat() {
         Timer.publish(every: 30, on: .main, in: .default)
             .autoconnect()
             .sink { [weak self] _ in
@@ -181,7 +181,7 @@ class WebSocketService {
             .store(in: &cancellables)
     }
     
-    private func sendHeartbeat() {
+    func sendHeartbeat() {
         let pingDict: [String: Any] = ["action": "ping"]
         do {
             let data = try JSONSerialization.data(withJSONObject: pingDict)
@@ -191,7 +191,7 @@ class WebSocketService {
         }
     }
     
-    private func handleError(_ error: WebSocketError) {
+    func handleError(_ error: WebSocketError) {
         errorPublisher.send(error)
         
         switch error {

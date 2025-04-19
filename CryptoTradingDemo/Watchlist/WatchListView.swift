@@ -11,7 +11,7 @@ struct WatchListView : View {
     @EnvironmentObject var watchlistViewModel: WatchListViewModel
     var body: some View {
         NavigationView {
-            if watchlistViewModel.watchListStates.isEmpty {
+            if watchlistViewModel.isEmpty {
                 VStack{
                     Spacer()
                     Text("Empty")

@@ -10,7 +10,9 @@ import Combine
 
 final class WatchListViewModel: ObservableObject {
     // MARK: - Properties
-    @Published private(set) var watchListStates: [String: Bool] = [:]
+    @Published var watchListStates: [String: Bool] = [:]
+    @Published var isEmpty:Bool = true
+    
     private let watchListKey = "WATCHLIST_KEY"
     private let userDefaults: UserDefaults
     
@@ -25,13 +27,9 @@ final class WatchListViewModel: ObservableObject {
         watchListStates[tokenPair.rawValue] ?? false
     }
     
-    func toggleWatchState(for tokenPair: TokenPair) {
-        let newState = !isWatched(tokenPair: tokenPair)
-        updateWatchState(tokenPair: tokenPair, state: newState)
-    }
-    
     func updateWatchState(tokenPair: TokenPair, state: Bool) {
         watchListStates[tokenPair.rawValue] = state
+        updateEmpty()
         saveWatchList()
     }
     
@@ -39,7 +37,14 @@ final class WatchListViewModel: ObservableObject {
     private func loadWatchList() {
         if let dictionary = userDefaults.dictionary(forKey: watchListKey) as? [String: Bool] {
             watchListStates = dictionary
+            updateEmpty()
         }
+    }
+    
+    private func updateEmpty() {
+        isEmpty = watchListStates.first(where: { (key,value) in
+            value == true
+        }) == nil
     }
     
     private func saveWatchList() {

@@ -21,6 +21,8 @@ class OrderViewModel: ObservableObject {
     var orders: Results<RealmOrder> {
         realm.objects(RealmOrder.self).sorted(byKeyPath: "timestamp", ascending: false)
     }
+    private var notificationToken: NotificationToken?  // 新增通知令牌
+
     
     init() {
         // 初始化 Realm 配置
@@ -33,6 +35,15 @@ class OrderViewModel: ObservableObject {
         } catch {
             fatalError("Realm 初始化失败: \(error)")
         }
+        
+        // 添加结果监听
+        notificationToken = orders.observe { [weak self] _ in
+            self?.objectWillChange.send()  // 当结果集变化时触发视图更新
+        }
+    }
+    
+    deinit {
+        notificationToken?.invalidate()
     }
     
     func submitOrder() {

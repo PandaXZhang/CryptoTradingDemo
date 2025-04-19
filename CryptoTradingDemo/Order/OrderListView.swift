@@ -41,6 +41,7 @@ enum OrderType: String, CaseIterable, PersistableEnum {
 struct OrderListView: View {
     @ObservedObject var viewModel: OrderViewModel
     @State private var showingDeletionAlert = false
+    @State private var showingErrornAlert = false
     @State private var orderToDelete: RealmOrder?
     
     private let dateFormatter: DateFormatter = {
@@ -64,6 +65,8 @@ struct OrderListView: View {
                     }
             }
         }
+        // 添加动画效果
+        .animation(.default, value: viewModel.orders.count)
         .alert("确认删除订单？", isPresented: $showingDeletionAlert) {
             Button("取消", role: .cancel) {}
             Button("删除", role: .destructive) {
@@ -71,6 +74,9 @@ struct OrderListView: View {
                     deleteOrder(order)
                 }
             }
+        }
+        .alert("错误", isPresented: $showingErrornAlert) {
+            Button("OK", role: .cancel) {}
         }
     }
     
@@ -81,6 +87,7 @@ struct OrderListView: View {
             }
         } catch {
             print("删除订单失败: \(error)")
+            showingErrornAlert = true
         }
     }
 }
@@ -114,21 +121,6 @@ struct OrderRowView: View {
             Text(dateFormatter.string(from: order.timestamp))
                 .font(.caption2)
                 .foregroundColor(.gray)
-        }
-    }
-}
-
-// 组合视图保持不变
-struct ExchangeView: View {
-    @StateObject var viewModel = OrderViewModel()
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                OrderEntryView(viewModel: viewModel)
-                OrderListView(viewModel: viewModel)
-            }
-            .navigationTitle("加密货币交易")
         }
     }
 }

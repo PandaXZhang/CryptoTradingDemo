@@ -26,7 +26,7 @@ struct ContentView: View {
                     Label("Watchlist", systemImage: "star")
                 }
                 .tag(1)
-            OrderHistoryView(viewModel: orderListViewModel)
+            OrderListView(viewModel: orderListViewModel)
                 .tabItem {
                     Label("Orders", systemImage: "cart")
                 }

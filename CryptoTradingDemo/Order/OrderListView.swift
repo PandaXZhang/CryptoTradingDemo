@@ -6,25 +6,129 @@
 //
 
 import SwiftUI
+import RealmSwift
 
-struct OrderHistoryView: View {
+// MARK: - Realm Data Model
+class RealmOrder: Object, ObjectKeyIdentifiable {
+    @Persisted(primaryKey: true) var id: String = UUID().uuidString
+    @Persisted var side: String
+    @Persisted var orderType: String
+    @Persisted var price: Double?
+    @Persisted var amount: Double
+    @Persisted var timestamp: Date
+    
+    var orderSide: Side {
+        Side(rawValue: side) ?? .buy
+    }
+    
+    var type: OrderType {
+        OrderType(rawValue: orderType) ?? .limit
+    }
+}
+
+// MARK:
+enum Side: String, CaseIterable, PersistableEnum {
+    case buy = "Buy"
+    case sell = "Sell"
+}
+
+enum OrderType: String, CaseIterable, PersistableEnum {
+    case market = "Market"
+    case limit = "Limit"
+}
+
+
+struct OrderListView: View {
     @ObservedObject var viewModel: OrderViewModel
-
+    @State private var showingDeletionAlert = false
+    @State private var orderToDelete: RealmOrder?
+    
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
+    }()
+    
     var body: some View {
-        VStack {
-            Text("Order History")
-               .font(.largeTitle)
-               .padding()
-
-            List(viewModel.orders) { order in
-                VStack(alignment:.leading) {
-                    Text(order.isBuy ? "Buy in" : "Sell out")
-                    Text("Price: \(order.price)")
-                    Text("Amount: \(order.amount)")
-                    Text("Order Type: \(order.orderType == .market ? "market" : "price")")
-                    Text("time: \(order.timestamp.formatted())")
+        List {
+            ForEach(viewModel.orders, id: \.id) { order in
+                OrderRowView(order: order)
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            orderToDelete = order
+                            showingDeletionAlert = true
+                        } label: {
+                            Label("删除", systemImage: "trash")
+                        }
+                    }
+            }
+        }
+        .alert("确认删除订单？", isPresented: $showingDeletionAlert) {
+            Button("取消", role: .cancel) {}
+            Button("删除", role: .destructive) {
+                if let order = orderToDelete {
+                    deleteOrder(order)
                 }
             }
+        }
+    }
+    
+    private func deleteOrder(_ order: RealmOrder) {
+        do {
+            try viewModel.realm.write {
+                viewModel.realm.delete(order)
+            }
+        } catch {
+            print("删除订单失败: \(error)")
+        }
+    }
+}
+
+struct OrderRowView: View {
+    let order: RealmOrder
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
+    }()
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text(order.orderSide.rawValue)
+                    .foregroundColor(order.orderSide == .buy ? .green : .red)
+                Spacer()
+                Text(order.type.rawValue)
+            }
+            
+            HStack {
+                Text("价格:")
+                Text(order.price != nil ? String(format: "%.4f", order.price!) : "市价")
+                Spacer()
+                Text("数量: \(String(format: "%.4f", order.amount))")
+            }
+            .font(.caption)
+            
+            Text(dateFormatter.string(from: order.timestamp))
+                .font(.caption2)
+                .foregroundColor(.gray)
+        }
+    }
+}
+
+// 组合视图保持不变
+struct ExchangeView: View {
+    @StateObject var viewModel = OrderViewModel()
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                OrderEntryView(viewModel: viewModel)
+                OrderListView(viewModel: viewModel)
+            }
+            .navigationTitle("加密货币交易")
         }
     }
 }

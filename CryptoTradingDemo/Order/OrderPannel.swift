@@ -7,65 +7,92 @@
 
 import SwiftUI
 
-struct Order:Identifiable {
-    let id = UUID()
-    let price: Double
-    let amount: Double
-    let orderType: OrderType
-    let isBuy: Bool
-    let timestamp: Date
-
-    enum OrderType {
-        case market
-        case limit
-    }
-}
-
-class OrderViewModel: ObservableObject {
-    @Published var orders: [Order] = []
-
-    func placeOrder(price: Double, amount: Double, orderType: Order.OrderType, isBuy: Bool) {
-        let newOrder = Order(price: price, amount: amount, orderType: orderType, isBuy: isBuy, timestamp: Date())
-        orders.append(newOrder)
-    }
-}
-
 struct OrderEntryView: View {
-    @State private var price: Double = 0
-    @State private var amount: Double = 0
-    @State private var selectedOrderType: Order.OrderType = .market
-    @State private var isBuy: Bool = true
     @ObservedObject var viewModel: OrderViewModel
-
+    
     var body: some View {
-        VStack {
-            Text("Order Input")
-               .font(.largeTitle)
-               .padding()
-
-            TextField("Price", value: $price, formatter: NumberFormatter())
-               .textFieldStyle(RoundedBorderTextFieldStyle())
-               .padding()
-
-            TextField("Amount", value: $amount, formatter: NumberFormatter())
-               .textFieldStyle(RoundedBorderTextFieldStyle())
-               .padding()
-
-            Picker("Order Type", selection: $selectedOrderType) {
-                Text("Market").tag(Order.OrderType.market)
-                Text("Limit").tag(Order.OrderType.limit)
+        Form {
+            Section(header: Text("订单输入")) {
+                // 买卖方向选择器
+                Picker("方向", selection: $viewModel.selectedSide) {
+                    ForEach(Side.allCases, id: \.self) { side in
+                        Text(side.rawValue)
+                            .tag(side)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.vertical, 8)
+                
+                // 订单类型选择器
+                Picker("类型", selection: $viewModel.selectedOrderType) {
+                    ForEach(OrderType.allCases, id: \.self) { type in
+                        Text(type.rawValue)
+                            .tag(type)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.vertical, 8)
+                
+                // 条件显示价格输入
+                if viewModel.selectedOrderType == .limit {
+                    HStack {
+                        Text("价格")
+                            .frame(width: 80, alignment: .leading)
+                        TextField("输入价格", text: $viewModel.priceInput)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .overlay(
+                                HStack {
+                                    Spacer()
+                                    Text("USDT")
+                                        .foregroundColor(.gray)
+                                        .padding(.trailing, 8)
+                                }
+                            )
+                    }
+                    .padding(.vertical, 4)
+                }
+                
+                // 数量输入
+                HStack {
+                    Text("数量")
+                        .frame(width: 80, alignment: .leading)
+                    TextField("输入数量", text: $viewModel.amountInput)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .overlay(
+                            HStack {
+                                Spacer()
+                                Text("BTC")
+                                    .foregroundColor(.gray)
+                                    .padding(.trailing, 8)
+                            }
+                        )
+                }
+                .padding(.vertical, 4)
+                
+                // 确认按钮
+                Button(action: {
+                    viewModel.submitOrder()
+                }) {
+                    HStack {
+                        Spacer()
+                        Text("确认 \(viewModel.selectedSide.rawValue)")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Spacer()
+                    }
+                    .padding()
+                    .background(viewModel.selectedSide == .buy ? Color.green : Color.red)
+                    .cornerRadius(10)
+                }
+                .disabled(
+                    viewModel.amountInput.isEmpty ||
+                    (viewModel.selectedOrderType == .limit && viewModel.priceInput.isEmpty)
+                )
+                .padding(.vertical, 8)
             }
-           .pickerStyle(SegmentedPickerStyle())
-           .padding()
-
-            Toggle("Buy", isOn: $isBuy)
-               .padding()
-
-            Button("Confirm") {
-                viewModel.placeOrder(price: price, amount: amount, orderType: selectedOrderType, isBuy: isBuy)
-            }
-           .padding()
-           .buttonStyle(.borderedProminent)
         }
+        .padding(.horizontal, -16)  // 移除 Form 的默认边距
     }
 }

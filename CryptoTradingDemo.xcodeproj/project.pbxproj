@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00F47F552DB3FC2500F6F9F1 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 00F47F542DB3FC2500F6F9F1 /* RealmSwift */; };
 		F0B2EEC82DA9280500F8D323 /* LightweightCharts in Frameworks */ = {isa = PBXBuildFile; productRef = F0B2EEC72DA9280500F8D323 /* LightweightCharts */; };
 		F0B2EECB2DA9285000F8D323 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = F0B2EECA2DA9285000F8D323 /* Starscream */; };
 /* End PBXBuildFile section */
@@ -57,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00F47F552DB3FC2500F6F9F1 /* RealmSwift in Frameworks */,
 				F0B2EEC82DA9280500F8D323 /* LightweightCharts in Frameworks */,
 				F0B2EECB2DA9285000F8D323 /* Starscream in Frameworks */,
 			);
@@ -121,6 +123,7 @@
 			packageProductDependencies = (
 				F0B2EEC72DA9280500F8D323 /* LightweightCharts */,
 				F0B2EECA2DA9285000F8D323 /* Starscream */,
+				00F47F542DB3FC2500F6F9F1 /* RealmSwift */,
 			);
 			productName = CryptoTradingDemo;
 			productReference = 0052AC1C2DA6C7D800D4BBDC /* CryptoTradingDemo.app */;
@@ -207,6 +210,7 @@
 			packageReferences = (
 				F0B2EEC62DA9280500F8D323 /* XCRemoteSwiftPackageReference "LightweightChartsIOS" */,
 				F0B2EEC92DA9285000F8D323 /* XCRemoteSwiftPackageReference "Starscream" */,
+				00F47F532DB3FC2500F6F9F1 /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0052AC1D2DA6C7D800D4BBDC /* Products */;
@@ -573,6 +577,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		00F47F532DB3FC2500F6F9F1 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		F0B2EEC62DA9280500F8D323 /* XCRemoteSwiftPackageReference "LightweightChartsIOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tradingview/LightweightChartsIOS.git";
@@ -592,6 +604,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		00F47F542DB3FC2500F6F9F1 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00F47F532DB3FC2500F6F9F1 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
+		};
 		F0B2EEC72DA9280500F8D323 /* LightweightCharts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F0B2EEC62DA9280500F8D323 /* XCRemoteSwiftPackageReference "LightweightChartsIOS" */;
